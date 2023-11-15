@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+struct ShareRequest: Identifiable, Codable {
+    var id: UUID = .init()
+    var source: String
+    var date: Date
+}

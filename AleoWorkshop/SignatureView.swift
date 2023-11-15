@@ -7,12 +7,24 @@
 
 import SwiftUI
 
+import Aleo
+
 struct SignatureView: View {
+    
+    var source: String
+    var signature: Signature
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            Text("You just shared your medical records with \(source). Here is your signature: ")
+            Spacer()
+            Text(signature.toString())
+                .padding(20)
+            Spacer()
+        }
     }
 }
 
 #Preview {
-    SignatureView()
+    SignatureView(source: "Aetna", signature: .init(""))
 }

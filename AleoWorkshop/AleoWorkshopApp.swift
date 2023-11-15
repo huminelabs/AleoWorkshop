@@ -12,7 +12,6 @@ import SwiftData
 struct AleoWorkshopApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -26,6 +25,8 @@ struct AleoWorkshopApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(AleoManager())
+                .environment(LocalAuthenticator())
         }
         .modelContainer(sharedModelContainer)
     }
