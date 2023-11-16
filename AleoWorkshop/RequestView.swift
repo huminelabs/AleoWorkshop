@@ -32,15 +32,18 @@ struct RequestView: View {
                 """)
                 .font(.title)
                 Spacer()
-                Button("") {
-                    // TODO
+                Button("Generate ZK Proof") {
+                    signature = aleoManager.encrypt(healthRecord: records.first)
+                    showSuccess = true
                 }
                 Button("Cancel") {
-                    // TODO
+                    dismiss()
                 }
             }
-            .sheet(item: $signature, content: { signature in
-                SignatureView(source: shareRequest.source, signature: signature)
+            .navigationDestination(isPresented: $showSuccess, destination: {
+                if let signature = signature {
+                    SignatureView(source: shareRequest.source, signature: signature)
+                }
             })
             .navigationTitle("Share Request")
         }
@@ -49,6 +52,7 @@ struct RequestView: View {
 
 #Preview {
     RequestView(shareRequest: ShareRequest(source: "Aetna", date: Date()))
+        .modelContainer(for: [HealthRecord.self, Diagnosis.self, Medication.self], inMemory: true)
         .environment(LocalAuthenticator())
         .environment(AleoManager())
 }

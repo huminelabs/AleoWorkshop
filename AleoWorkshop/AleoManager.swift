@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 
 import Observation
 
@@ -13,6 +14,8 @@ import Aleo
 
 import KeychainAccess
 
+
+/// Demo Records and Keys
 let RECORD_PLAINTEXT = """
 {
       owner: aleo1j7qxyunfldj2lp8hsvy7mw5k8zaqgjfyr72x2gh3x4ewgae8v5gscf5jh3.private,
@@ -30,7 +33,34 @@ let SERIAL_NUMBER = "81706195070756471511992390496532351870426617446914586447510
 
 @Observable
 class AleoManager {
-    var account: Account?
+    var account: Account? {
+        get {
+            guard let ciphertext = keychain["aleoAccount"],
+                  let password = password else {
+                return nil
+            }
+            
+            return Account(ciphertext: ciphertext, password: password)
+        }
+        set {
+            guard let password = password else {
+                return
+            }
+            
+            let encrypted = newValue?.encryptAccount(with: password)
+            
+            keychain["aleoAccount"] = encrypted?.toString()
+        }
+    }
+    
+    private var password: String? {
+        get {
+            return keychain["aleoPassword"]
+        }
+        set {
+            keychain["aleoPassword"] = newValue
+        }
+    }
     
     private var aleoCloudClient: AleoCloudClient = .init(serverURL: .testnet3)
     
@@ -41,26 +71,49 @@ class AleoManager {
         .synchronizable(true)
     
     func generateAccount() {
+        guard let privateKey = PrivateKey(OWNER_PRIVATE_KEY) else {
+            os_log("Invalid privateKey")
+            return
+        }
+        let account = Account(privateKey: privateKey)
         
+        self.account = account
+        
+        password = "mySuperSecurePassword"
+        
+        print("Successfully created account")
     }
     
     func decryptRecord() -> RecordPlaintext? {
-        return nil
-    }
-    
-    func encrypt(healthRecord: HealthRecord?) -> Signature? {
-        guard let healthRecord = healthRecord else {
+        guard let string = account?.decryptRecord(ciphertext: RECORD_CIPHERTEXT) else {
             return nil
         }
         
-        let data = try? JSONEncoder().encode(healthRecord)
-        return nil
+        return RecordPlaintext(string)
     }
-}
-
-
-extension Signature: Identifiable {
-    public var id: String {
-        return self.toString()
+    
+    func encrypt(healthRecord: HealthRecord?) -> Signature? {
+        guard let account = account else {
+            os_log("No account found")
+            return nil
+        }
+        
+        guard let healthRecord = healthRecord else {
+            os_log("No health record found")
+            return nil
+        }
+        
+        guard let data = try? JSONEncoder().encode(healthRecord) else {
+            os_log("Failed to encode healthRecord")
+            return nil
+        }
+        
+        let dataInt = data.first ?? 0
+    
+        let message = [dataInt]
+        
+        let signature = account.sign(message: message)
+        
+        return signature
     }
 }

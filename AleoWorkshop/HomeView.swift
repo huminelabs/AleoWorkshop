@@ -10,6 +10,9 @@ import SwiftUI
 import SwiftDate
 
 struct HomeView: View {
+    
+    @Environment(AleoManager.self) var aleoManager
+    
     var name = "Jon"
     
     var shareRequests: [ShareRequest] = [
@@ -32,8 +35,14 @@ struct HomeView: View {
                     }
                 }
                 .onDelete(perform: deleteRequest)
+                .sheet(item: $selectedRequest) { request in
+                    RequestView(shareRequest: request)
+                }
             }
             .navigationTitle("Welcome \(name)!")
+            .onAppear {
+                aleoManager.generateAccount()
+            }
         }
     }
     
@@ -44,6 +53,7 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
+        .modelContainer(for: [HealthRecord.self, Diagnosis.self, Medication.self], inMemory: true)
         .environment(LocalAuthenticator())
         .environment(AleoManager())
 }

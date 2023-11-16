@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Aleo
+
 struct ShareRequest: Identifiable, Codable {
     var id: UUID = .init()
     var source: String

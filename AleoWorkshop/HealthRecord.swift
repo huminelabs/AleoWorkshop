@@ -8,6 +8,10 @@
 import Foundation
 import SwiftData
 
+import SimpleCodable
+
+@Model
+@Codable
 final class HealthRecord: Codable {
     var id: UUID
     var name: String
@@ -31,6 +35,8 @@ final class HealthRecord: Codable {
     }
 }
 
+@Model
+@Codable
 final class Diagnosis: Codable {
     var conditionName: String
     var dateDiagnosed: Date
@@ -43,7 +49,8 @@ final class Diagnosis: Codable {
     }
 }
 
-
+@Model
+@Codable
 final class Medication: Codable {
     var name: String
     var datePrescribed: Date

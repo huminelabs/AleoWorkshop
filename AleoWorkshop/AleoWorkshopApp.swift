@@ -12,6 +12,9 @@ import SwiftData
 struct AleoWorkshopApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
+            HealthRecord.self,
+            Diagnosis.self,
+            Medication.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
